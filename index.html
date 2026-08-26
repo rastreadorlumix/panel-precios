@@ -78,9 +78,9 @@
         <div class="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-800 pb-4">
             <h3 class="text-base font-semibold text-white">Evolución de Precio Interactiva</h3>
             <div id="contenedor-filtros" class="flex flex-wrap gap-1 bg-black p-1 rounded-xl border border-neutral-800">
-                <button onclick="filtrarTiempo('7d')" id="filt-7d" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-neutral-800 text-white shadow-sm border border-neutral-700">7 días</button>
+                <button onclick="filtrarTiempo('7d')" id="filt-7d" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">7 días</button>
                 <button onclick="filtrarTiempo('1m')" id="filt-1m" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">1 mes</button>
-                <button onclick="filtrarTiempo('3m')" id="filt-3m" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">3 meses</button>
+                <button onclick="filtrarTiempo('3m')" id="filt-3m" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-neutral-800 text-white shadow-sm border border-neutral-700">3 meses</button>
                 <button onclick="filtrarTiempo('1y')" id="filt-1y" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">1 año</button>
                 <button onclick="filtrarTiempo('todo')" id="filt-todo" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">Todo</button>
             </div>
@@ -89,7 +89,13 @@
         <div class="space-y-6">
             <div class="bg-black border border-neutral-800 rounded-2xl p-4 md:p-6 shadow-xl">
                 <div class="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3 text-xs text-neutral-400">
-                    <span>Historial de precios</span>
+                    <div class="flex items-center space-x-4">
+                        <span>Historial de precios</span>
+                        <div class="hidden sm:flex items-center space-x-3 text-[11px]">
+                            <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full inline-block mr-1.5" style="background-color: #10b981;"></span>Precio Real</span>
+                            <span class="flex items-center"><span class="w-3 h-0.5 inline-block mr-1.5" style="background-color: #3b82f6;"></span>Media Móvil</span>
+                        </div>
+                    </div>
                     <a href="https://www.amazon.es/dp/B01NCTOKPM" target="_blank" class="font-semibold text-white hover:underline">Ver en Amazon &rarr;</a>
                 </div>
                 <div class="bg-black rounded-xl p-4 border border-neutral-800/50 relative h-80 md:h-[420px]">
@@ -179,6 +185,16 @@
             const fechas = datos.map(row => row.Fecha);
             const precios = datos.map(row => parseFloat(row.Precio));
 
+            // Cálculo dinámico de la media móvil
+            const ventana = Math.min(7, Math.max(2, Math.floor(precios.length / 5)));
+            const mediaMovil = [];
+            for (let i = 0; i < precios.length; i++) {
+                const inicio = Math.max(0, i - ventana + 1);
+                const subArray = precios.slice(inicio, i + 1);
+                const suma = subArray.reduce((a, b) => a + b, 0);
+                mediaMovil.push(suma / subArray.length);
+            }
+
             let colorLinea = '#10b981';
             if (precios.length >= 2 && precios[precios.length - 1] > precios[precios.length - 2]) {
                 colorLinea = '#ef4444';
@@ -190,22 +206,41 @@
                 type: 'line',
                 data: {
                     labels: fechas,
-                    datasets: [{
-                        label: 'Precio (€)',
-                        data: precios,
-                        borderColor: colorLinea,
-                        backgroundColor: colorLinea + '15',
-                        borderWidth: 2.5,
-                        pointRadius: 0,
-                        pointHoverRadius: 6,
-                        fill: true,
-                        tension: 0.2
-                    }]
+                    datasets: [
+                        {
+                            label: 'Precio Real (€)',
+                            data: precios,
+                            borderColor: colorLinea,
+                            backgroundColor: colorLinea + '15',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.2
+                        },
+                        {
+                            label: 'Media Móvil',
+                            data: mediaMovil,
+                            borderColor: '#3b82f6',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            borderDash: [4, 4],
+                            fill: false,
+                            tension: 0.3
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
                     scales: {
                         x: {
                             display: false,
