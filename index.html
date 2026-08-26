@@ -17,7 +17,7 @@
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
 
-    <header class="bg-black/80 backdrop-blur-md border-b border-neutral-800 sticky top-0 z-50 py-4 px-4 shadow-lg">
+    <header class="bg-black/85 backdrop-blur-md border-b border-neutral-800 sticky top-0 z-50 py-4 px-4 shadow-lg">
         <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div class="flex items-center space-x-3">
                 <img src="icon.png" alt="Logo" class="w-8 h-8 object-contain">
@@ -81,10 +81,10 @@
         <div class="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-800 pb-4">
             <h3 class="text-base font-semibold text-white">Evolución de Precio Interactiva</h3>
             <div id="contenedor-filtros" class="flex flex-wrap gap-1 bg-black p-1 rounded-xl border border-neutral-800">
-                <button onclick="filtrarTiempo('1d')" id="filt-1d" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">1 día</button>
-                <button onclick="filtrarTiempo('3d')" id="filt-3d" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">3 días</button>
                 <button onclick="filtrarTiempo('7d')" id="filt-7d" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-neutral-800 text-white shadow-sm border border-neutral-700">7 días</button>
-                <button onclick="filtrarTiempo('30d')" id="filt-30d" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">30 días</button>
+                <button onclick="filtrarTiempo('1m')" id="filt-1m" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">1 mes</button>
+                <button onclick="filtrarTiempo('3m')" id="filt-3m" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">3 meses</button>
+                <button onclick="filtrarTiempo('1y')" id="filt-1y" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">1 año</button>
                 <button onclick="filtrarTiempo('todo')" id="filt-todo" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all">Todo</button>
             </div>
         </div>
@@ -228,7 +228,7 @@
         }
 
         function filtrarTiempo(filtro) {
-            ['1d', '3d', '7d', '30d', 'todo'].forEach(f => {
+            ['7d', '1m', '3m', '1y', 'todo'].forEach(f => {
                 const btn = document.getElementById('filt-' + f);
                 if (f === filtro) {
                     btn.className = "px-3 py-1.5 rounded-lg text-xs font-medium bg-neutral-800 text-white shadow-sm border border-neutral-700";
@@ -240,21 +240,21 @@
             let datosFiltrados = globalData;
             const ahora = new Date();
 
-            if (filtro === '1d') {
-                const limite = new Date();
-                limite.setDate(ahora.getDate() - 1);
-                datosFiltrados = globalData.filter(row => new Date(row.Fecha) >= limite);
-            } else if (filtro === '3d') {
-                const limite = new Date();
-                limite.setDate(ahora.getDate() - 3);
-                datosFiltrados = globalData.filter(row => new Date(row.Fecha) >= limite);
-            } else if (filtro === '7d') {
+            if (filtro === '7d') {
                 const limite = new Date();
                 limite.setDate(ahora.getDate() - 7);
                 datosFiltrados = globalData.filter(row => new Date(row.Fecha) >= limite);
-            } else if (filtro === '30d') {
+            } else if (filtro === '1m') {
                 const limite = new Date();
-                limite.setDate(ahora.getDate() - 30);
+                limite.setMonth(ahora.getMonth() - 1);
+                datosFiltrados = globalData.filter(row => new Date(row.Fecha) >= limite);
+            } else if (filtro === '3m') {
+                const limite = new Date();
+                limite.setMonth(ahora.getMonth() - 3);
+                datosFiltrados = globalData.filter(row => new Date(row.Fecha) >= limite);
+            } else if (filtro === '1y') {
+                const limite = new Date();
+                limite.setFullYear(ahora.getFullYear() - 1);
                 datosFiltrados = globalData.filter(row => new Date(row.Fecha) >= limite);
             }
 
